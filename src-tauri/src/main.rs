@@ -19,9 +19,12 @@ pub static APP_HANDLE: OnceCell<tauri::AppHandle> = OnceCell::new();
 
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_shell::init())
+        // .plugin(tauri_plugin_global_shortcut::Builder::new().build())
+        .plugin(tauri_plugin_http::init())
         .invoke_handler(tauri::generate_handler![greet])
         .setup(|app| {
-            APP_HANDLE.get_or_init(|| app.handle());
+            APP_HANDLE.get_or_init(|| app.handle().clone());
             register_shortcuts(&app.app_handle())?;
             Ok(())
         })

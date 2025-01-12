@@ -3,7 +3,8 @@ import TranslateSettings from '../views/TranslateSettings.vue';
 import OcrSettings from '../views/OcrSettings.vue';
 import GeneralSettings from '../views/GeneralSettings.vue';
 import TranslateWindow from '../views/TranslateWindow.vue';
-import { appWindow } from '@tauri-apps/api/window';
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
+const appWindow = getCurrentWebviewWindow()
 
 const routes = [
   {

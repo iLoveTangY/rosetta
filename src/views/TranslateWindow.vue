@@ -41,66 +41,54 @@
   </el-container>
 </template>
 
-<script lang="ts">
-import { appWindow } from '@tauri-apps/api/window';
+<script setup lang="ts">
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { hideSidebar, showSidebar } from '../store/sidebar';
 import { listen } from '@tauri-apps/api/event';
-import { ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
+const appWindow = getCurrentWebviewWindow()
 
 console.log(`appWindow.label = ${appWindow.label}`);
 listen("tauri://blur", async () => {
   console.log('blur event happend');
 })
 
-export default {
-  name: 'TranslateWindow',
-  setup() {
-    console.log("call setup");
-    const inputText = ref("Hello World");
+const inputText = ref('Hello world');
 
-    const updateText = (new_text: string) => {
-      inputText.value = new_text;
-    }
+function updateText(newText: string) {
+  inputText.value = newText;
+}
 
-    listen("new_text", (event) => {
-      appWindow.show();
-      appWindow.setFocus();
-      const text = event.payload as string;
-      console.log("received text: ", text);
-      updateText(text);
-    });
-
-    return {
-      inputText,
-    }
-  },
-
-  data() {
-    return {
-      translatedTextOpenAI: '你好，世界',
-      translatedTextGoogle: '你好世界',
-      translatedTextHuoshan: '你好世界',
-    };
-  },
-  methods: {
-    // TODO: 细化类型
-    removeTranslation(service: string) {
-      if (service === 'openai') {
-        this.translatedTextOpenAI = '';
-      } else if (service === 'google') {
-        this.translatedTextGoogle = '';
-      } else if (service === 'huoshan') {
-        this.translatedTextHuoshan = '';
-      }
-    },
-  },
-  mounted() {
-    hideSidebar();
-  },
-  unmounted() {
-    showSidebar();
+function removeTranslation(service: string) {
+  if (service === 'openai') {
+    translatedTextOpenAI.value = '';
+  } else if (service === 'google') {
+    translatedTextGoogle.value = '';
+  } else if (service === 'huoshan') {
+    translatedTextHuoshan.value = '';
   }
-};
+}
+
+const translatedTextOpenAI = ref("你好，世界");
+const translatedTextGoogle = ref("你好，世界");
+const translatedTextHuoshan = ref("你好，世界");
+
+listen("new_text", (event) => {
+  appWindow.show();
+  appWindow.setFocus();
+  const text = event.payload as string;
+  console.log("received text: ", text);
+  updateText(text);
+});
+
+onMounted(() => {
+  hideSidebar();
+});
+
+onUnmounted(() => {
+  showSidebar();
+});
+
 </script>
 
 <style>

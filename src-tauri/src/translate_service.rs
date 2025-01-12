@@ -1,1 +1,2 @@
-pub mod volcengine_translator;
+// pub mod volcengine_translator;
+pub mod baidu_translator;
