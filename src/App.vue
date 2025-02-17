@@ -39,21 +39,6 @@ import { RouterLink } from 'vue-router';
 const activeMenu = ref("translate-settings");
 const sidebarState = computed(() => s);
 
-// export default {
-//   name: 'App',
-//   data() {
-//     return {
-//       activeMenu: 'translate-settings',
-//       sidebarState: computed(() => sidebarState)
-//     };
-//   },
-//   methods: {
-//     handleSelect(key: string) {
-//       this.$router.push({ path: `/${key}` });
-//       this.activeMenu = key;
-//     }
-//   }
-// };
 </script>
 
 <style>

@@ -1,8 +1,11 @@
 use nanoid::nanoid;
-use reqwest::blocking::Client;
+use serde::Serialize;
+use tauri_plugin_http::reqwest;
 
-use serde::{Deserialize, Serialize};
-use std::error::Error;
+
+use crate::errors::RosettaError;
+
+use super::TranslateResults;
 
 #[derive(Serialize)]
 struct QueryParams {
@@ -14,21 +17,9 @@ struct QueryParams {
     sign: String,
 }
 
-#[derive(Deserialize, Debug)]
-struct TranslateResult {
-    dst: String,
-}
-
-#[derive(Deserialize, Debug)]
-struct TranslateResults {
-    from: String,
-    to: String,
-    trans_result: Vec<TranslateResult>,
-}
-
-pub async fn translate(text: &str, from: &str, to: &str) {
-    let appid = "";
-    let secret = "";
+pub async fn translate(text: &str, from: &str, to: &str) -> Result<TranslateResults, RosettaError> {
+    let appid = "20210406000764587";
+    let secret = "h73rZUpczILttxsNw5JL";
 
     let url = "https://fanyi-api.baidu.com/api/trans/vip/translate";
 
@@ -45,18 +36,24 @@ pub async fn translate(text: &str, from: &str, to: &str) {
         salt: salt,
         sign: format!("{:x}", sign),
     };
+    // 使用reqwest，携带query_params发起异步请求
+    let client = reqwest::Client::new();
+    let response = client.get(url).query(&query_params).send().await?;
+    let ret: TranslateResults = response.json().await?;
+    println!("request result: {:?}", ret);
+    Ok(ret)
 
-    let client = Client::new();
-    let response = client.get(url).query(&query_params).send();
-    match response {
-        Ok(res) => {
-            let ret: TranslateResults = res.json().unwrap();
-            println!("request result: {:?}", ret);
-        }
-        Err(e) => {
-            println!("request error: {}", e);
-        }
-    }
+    // match response {
+    //     Ok(res) => {
+    //         let ret: TranslateResults = res.json().await.unwrap();
+    //         println!("request result: {:?}", ret);
+    //         Ok(ret)
+    //     }
+    //     Err(e) => {
+    //         println!("request error: {}", e);
+    //         Err(e)
+    //     }
+    // }
 }
 
 #[cfg(test)]
@@ -65,6 +62,6 @@ mod tests {
 
     #[tokio::test]
     async fn test_translate() {
-        translate("hello", "auto", "zh").await;
+        println!("{:?}", translate("hello", "auto", "zh").await);
     }
 }

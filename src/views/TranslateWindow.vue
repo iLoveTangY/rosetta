@@ -46,6 +46,7 @@ import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { hideSidebar, showSidebar } from '../store/sidebar';
 import { listen } from '@tauri-apps/api/event';
 import { onMounted, onUnmounted, ref } from 'vue';
+import { invoke } from '@tauri-apps/api/core';
 const appWindow = getCurrentWebviewWindow()
 
 console.log(`appWindow.label = ${appWindow.label}`);
@@ -69,16 +70,26 @@ function removeTranslation(service: string) {
   }
 }
 
+async function translate(text: String, from: String = 'auto', to: String = 'zh') {
+  const res = await invoke('translate', { text, config: { from, to } });
+  console.log("translate res: ", res.trans_result[0].dst);
+  translatedTextHuoshan.value = res.trans_result[0].dst;
+  return res;
+}
+
 const translatedTextOpenAI = ref("你好，世界");
 const translatedTextGoogle = ref("你好，世界");
 const translatedTextHuoshan = ref("你好，世界");
 
-listen("new_text", (event) => {
+console.log('list new_text event');
+appWindow.listen<string>("new_text", async (event) => {
+  console.log("received: ", event);
   appWindow.show();
   appWindow.setFocus();
   const text = event.payload as string;
   console.log("received text: ", text);
   updateText(text);
+  await translate(text)
 });
 
 onMounted(() => {
@@ -87,6 +98,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   showSidebar();
+  // unlisten();
 });
 
 </script>

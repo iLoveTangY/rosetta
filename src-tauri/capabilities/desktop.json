@@ -6,9 +6,18 @@
     "linux"
   ],
   "windows": [
-    "main"
+    "main",
+    "translate_window"
   ],
   "permissions": [
-    "global-shortcut:default"
+    "global-shortcut:allow-is-registered",
+    "global-shortcut:allow-register",
+    "global-shortcut:allow-unregister",
+    "core:event:allow-emit", 
+    "core:event:allow-emit-to",
+    "core:event:allow-listen",
+    "core:event:allow-unlisten",
+    "core:window:allow-show",
+    "core:window:allow-set-focus"
   ]
 }
