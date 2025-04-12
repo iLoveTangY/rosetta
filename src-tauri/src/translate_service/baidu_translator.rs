@@ -2,7 +2,6 @@ use nanoid::nanoid;
 use serde::Serialize;
 use tauri_plugin_http::reqwest;
 
-
 use crate::errors::RosettaError;
 
 use super::TranslateResults;

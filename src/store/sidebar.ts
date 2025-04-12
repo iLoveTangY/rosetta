@@ -1,3 +1,4 @@
+import { Store } from '@tauri-apps/plugin-store';
 import { reactive } from 'vue';
 
 export const sidebarState = reactive({
@@ -11,3 +12,5 @@ export function showSidebar() {
 export function hideSidebar() {
   sidebarState.isVisible = false;
 }
+
+export const store = await Store.load("config.bin");

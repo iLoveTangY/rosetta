@@ -59,7 +59,8 @@ fn handle_selection() {
     }
     let translate_window = get_translate_window();
     println!("emit new_text to frontend, text: {}", text);
-    translate_window.app_handle()
+    translate_window
+        .app_handle()
         .emit_to(TRANSLATE_WINDOW_LABEL, "new_text", text)
         .unwrap();
 }

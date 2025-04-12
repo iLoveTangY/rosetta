@@ -17,7 +17,7 @@
       </el-card>
       <el-card class="box-card">
         <div slot="header" class="clearfix">
-          <span>Google Translate</span>
+          <span>谷歌翻译</span>
           <el-button @click="removeTranslation('google')" type="text" class="card-close">X</el-button>
         </div>
         <div>
@@ -28,7 +28,7 @@
       </el-card>
       <el-card class="box-card">
         <div slot="header" class="clearfix">
-          <span>Huoshan Translate</span>
+          <span>百度翻译</span>
           <el-button @click="removeTranslation('huoshan')" type="text" class="card-close">X</el-button>
         </div>
         <div>
@@ -71,7 +71,7 @@ function removeTranslation(service: string) {
 }
 
 async function translate(text: String, from: String = 'auto', to: String = 'zh') {
-  const res = await invoke('translate', { text, config: { from, to } });
+  const res: TranslateResults = await invoke('translate', { text, config: { from, to } });
   console.log("translate res: ", res.trans_result[0].dst);
   translatedTextHuoshan.value = res.trans_result[0].dst;
   return res;
