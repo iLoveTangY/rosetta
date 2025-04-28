@@ -43,7 +43,7 @@
 
 <script setup lang="ts">
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
-import { hideSidebar, showSidebar } from '../store/sidebar';
+import { hideSidebar, showSidebar, TranslaterService } from '../store/sidebar';
 import { listen } from '@tauri-apps/api/event';
 import { onMounted, onUnmounted, ref } from 'vue';
 import { invoke } from '@tauri-apps/api/core';

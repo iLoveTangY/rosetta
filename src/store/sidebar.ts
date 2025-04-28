@@ -1,5 +1,11 @@
+import { appConfigDir, join } from '@tauri-apps/api/path';
 import { Store } from '@tauri-apps/plugin-store';
 import { reactive } from 'vue';
+
+export enum TranslaterService {
+  BAIDU = "baidu",
+  HUOSHAN = "huoshan"
+}
 
 export const sidebarState = reactive({
   isVisible: true
@@ -12,5 +18,3 @@ export function showSidebar() {
 export function hideSidebar() {
   sidebarState.isVisible = false;
 }
-
-export const store = await Store.load("config.bin");

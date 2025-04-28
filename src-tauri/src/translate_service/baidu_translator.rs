@@ -1,10 +1,13 @@
 use nanoid::nanoid;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
+use tauri::Manager;
 use tauri_plugin_http::reqwest;
 
-use crate::errors::RosettaError;
+use crate::{errors::RosettaError, StoreState};
 
 use super::TranslateResults;
+
+const KEY: &str = "BAIDU";
 
 #[derive(Serialize)]
 struct QueryParams {
@@ -16,9 +19,32 @@ struct QueryParams {
     sign: String,
 }
 
-pub async fn translate(text: &str, from: &str, to: &str) -> Result<TranslateResults, RosettaError> {
-    let appid = "20210406000764587";
-    let secret = "h73rZUpczILttxsNw5JL";
+#[derive(Deserialize)]
+struct TranslatorConfig {
+    appid: String,
+    secret: String,
+}
+
+pub async fn translate(
+    app_handle: tauri::AppHandle,
+    text: &str,
+    from: &str,
+    to: &str,
+) -> Result<TranslateResults, RosettaError> {
+    let state = app_handle.state::<StoreState>();
+    let store = state.0.clone();
+    let baidu_config = store.get("baidu").ok_or(RosettaError::ConfigError(
+        "Config for baidu translator is empty".to_string(),
+    ))?;
+    let translator_config: TranslatorConfig =
+        serde_json::from_value(baidu_config).map_err(|e| {
+            RosettaError::ConfigError(format!(
+                "Config for baidu translator deserialize error: {}",
+                e
+            ))
+        })?;
+    let appid = translator_config.appid;
+    let secret = translator_config.secret;
 
     let url = "https://fanyi-api.baidu.com/api/trans/vip/translate";
 
@@ -32,7 +58,7 @@ pub async fn translate(text: &str, from: &str, to: &str) -> Result<TranslateResu
         from: from.to_string(),
         to: to.to_string(),
         appid: appid.to_string(),
-        salt: salt,
+        salt,
         sign: format!("{:x}", sign),
     };
     // 使用reqwest，携带query_params发起异步请求
@@ -53,14 +79,4 @@ pub async fn translate(text: &str, from: &str, to: &str) -> Result<TranslateResu
     //         Err(e)
     //     }
     // }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::translate;
-
-    #[tokio::test]
-    async fn test_translate() {
-        println!("{:?}", translate("hello", "auto", "zh").await);
-    }
 }

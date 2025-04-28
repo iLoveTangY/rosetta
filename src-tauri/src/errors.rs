@@ -6,6 +6,8 @@ pub enum RosettaError {
     ShortcutPluginError(#[from] tauri::Error),
     #[error("Shtorcut register error: {0}")]
     ShortcutRegisterError(#[from] tauri_plugin_global_shortcut::Error),
+    #[error("Translate config get error: {0}")]
+    ConfigError(String),
     #[error("Translate error: {0}")]
     HttpRequestError(#[from] tauri_plugin_http::reqwest::Error),
 }

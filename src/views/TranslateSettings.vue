@@ -11,7 +11,7 @@
               </el-form-item>
 
               <el-form-item label="密钥" prop="secretKey">
-                <el-input v-model="form.secretKey" placeholder="请输入密钥" type="password" class="input"></el-input>
+                <el-input v-model="form.secret" placeholder="请输入密钥" type="input" class="input"></el-input>
               </el-form-item>
 
               <el-form-item>
@@ -27,10 +27,12 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { store } from '../store/sidebar';
-const form = ref({
+import { TranslaterService } from '../store/sidebar';
+import { invoke } from '@tauri-apps/api/core';
+import { BaiduConfig } from '../types/TranslateConfigs';
+const form = ref<BaiduConfig>({
   appid: '',
-  secretKey: ''
+  secret: ''
 });
 const rules = {
   appid: [
@@ -41,12 +43,23 @@ const rules = {
   ]
 };
 
+const initForm = async () => {
+  console.log('init form');
+  const res = await invoke("get_config", { key: TranslaterService.BAIDU }) as BaiduConfig;
+  console.log("res = ", res);
+  form.value.appid = res.appid;
+  form.value.secret= res.secret;
+}
+
 const submitForm = async () => {
   // 这里你可以处理表单提交的逻辑
   console.log('提交的数据：', form.value);
   // 例如，你可以发送请求到后端接口，传递 AppID 和 密钥
-  await store.set("baidu", form.value);
+  // await setConfig(TranslaterService.BAIDU, form.value);
+  await invoke("set_config", { key: TranslaterService.BAIDU, value: form.value });
 };
+
+initForm();
 </script>
 
 <style scoped>
