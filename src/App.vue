@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <el-container style="height: 100vh;">
-      <el-aside v-if="sidebarState.isVisible">
+      <el-aside v-if="sidebarState.isVisible" style="width: auto;">
         <el-menu :default-active="'translate-settings'" class="el-menu-vertical-demo">
           <RouterLink to="/translate-settings">
             <el-menu-item index="translate-settings">
@@ -41,7 +41,7 @@ const sidebarState = computed(() => s);
 
 </script>
 
-<style>
+<style scoped>
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

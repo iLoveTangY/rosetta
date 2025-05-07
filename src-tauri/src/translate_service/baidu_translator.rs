@@ -7,8 +7,6 @@ use crate::{errors::RosettaError, StoreState};
 
 use super::TranslateResults;
 
-const KEY: &str = "BAIDU";
-
 #[derive(Serialize)]
 struct QueryParams {
     q: String,

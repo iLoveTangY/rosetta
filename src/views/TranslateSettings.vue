@@ -1,26 +1,39 @@
 <template>
   <div id="app" class="app-container">
     <el-container>
-      <el-row>
-        <el-col :span="24">
-          <el-card class="card">
-            <h2 class="card-title">百度翻译</h2>
+      <el-main class="main-container">
+        <div class="settings-header">
+          <h2>翻译设置</h2>
+          <p class="settings-description">配置翻译服务的相关参数</p>
+        </div>
+        <el-card class="settings-card">
+          <div class="service-section">
+            <div class="service-header">
+              <img src="https://fanyi-cdn.cdn.bcebos.com/static/trans-pc/static/media/logo.f7f354dc.svg" alt="百度翻译"
+                class="service-icon" />
+              <h3>百度翻译</h3>
+            </div>
+
             <el-form :model="form" :rules="rules" class="form">
               <el-form-item label="AppID" prop="appid">
-                <el-input v-model="form.appid" placeholder="请输入 AppID" class="input"></el-input>
+                <el-input v-model="form.appid" placeholder="请输入 AppID" class="settings-input"></el-input>
+                <div class="input-description">在百度翻译开放平台获取的应用ID</div>
               </el-form-item>
 
               <el-form-item label="密钥" prop="secretKey">
-                <el-input v-model="form.secret" placeholder="请输入密钥" type="input" class="input"></el-input>
+                <el-input v-model="form.secret" placeholder="请输入密钥" class="settings-input" show-password></el-input>
+                <div class="input-description">在百度翻译开放平台获取的应用密钥</div>
               </el-form-item>
 
-              <el-form-item>
-                <el-button type="primary" @click="submitForm" class="submit-button">提交</el-button>
+              <el-form-item class="form-actions">
+                <el-button type="primary" @click="submitForm" class="submit-button">
+                  保存设置
+                </el-button>
               </el-form-item>
             </el-form>
-          </el-card>
-        </el-col>
-      </el-row>
+          </div>
+        </el-card>
+      </el-main>
     </el-container>
   </div>
 </template>
@@ -30,10 +43,13 @@ import { ref } from 'vue';
 import { TranslaterService } from '../store/sidebar';
 import { invoke } from '@tauri-apps/api/core';
 import { BaiduConfig } from '../types/TranslateConfigs';
+import { ElMessage } from 'element-plus';
+
 const form = ref<BaiduConfig>({
   appid: '',
   secret: ''
 });
+
 const rules = {
   appid: [
     { required: true, message: '请输入 AppID', trigger: 'blur' }
@@ -48,84 +64,165 @@ const initForm = async () => {
   const res = await invoke("get_config", { key: TranslaterService.BAIDU }) as BaiduConfig;
   console.log("res = ", res);
   form.value.appid = res.appid;
-  form.value.secret= res.secret;
+  form.value.secret = res.secret;
 }
 
 const submitForm = async () => {
-  // 这里你可以处理表单提交的逻辑
-  console.log('提交的数据：', form.value);
-  // 例如，你可以发送请求到后端接口，传递 AppID 和 密钥
-  // await setConfig(TranslaterService.BAIDU, form.value);
-  await invoke("set_config", { key: TranslaterService.BAIDU, value: form.value });
+  try {
+    await invoke("set_config", { key: TranslaterService.BAIDU, value: form.value });
+    ElMessage({
+      message: '保存成功',
+      type: 'success',
+      duration: 2000,
+      center: true
+    });
+  } catch (e: unknown) {
+    ElMessage({
+      message: `保存失败: ${(e as Error).message}`,
+      type: 'error',
+      duration: 2000,
+      center: true
+    });
+  }
 };
 
 initForm();
 </script>
 
 <style scoped>
-/* 背景渐变 */
 .app-container {
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-family: 'Helvetica Neue', Arial, sans-serif;
+  min-height: 100vh;
+  /* background-color: #f5f5f7; */
+  padding: 3px;
 }
 
-/* 卡片样式 */
-.card {
-  border-radius: 15px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-}
-
-/* 标题样式 */
-.card-title {
-  font-size: 24px;
-  font-weight: bold;
-  color: #4A4A4A;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-/* 表单样式 */
-.form {
-  max-width: 100%;
+.main-container {
+  /* max-width: 800px; */
+  min-width: fit-content;
   margin: 0 auto;
-  width: 100%;
+  /* padding: 20px; */
 }
 
-/* 输入框样式 */
-.input {
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+.settings-card {
+  background: #ffffff;
+  border-radius: 12px;
+  /* border: 1px solid #e8e8e8; */
+  /* box-shadow: none; */
+}
+
+.settings-header {
+  /* margin-bottom: 30px; */
+  padding-bottom: 3px;
+  /* border-bottom: 1px solid #e8e8e8; */
+}
+
+.settings-header h2 {
+  font-size: 24px;
+  color: #1d1d1f;
+  margin: 0 0 8px 0;
+  font-weight: 500;
+}
+
+.settings-description {
+  color: #86868b;
+  font-size: 14px;
+  margin: 0;
+}
+
+.service-section {
+  padding: 3px 0;
+}
+
+.service-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.service-icon {
+  width: 32px;
+  height: 32px;
+  margin-right: 12px;
+}
+
+.service-header h3 {
+  font-size: 18px;
+  color: #1d1d1f;
+  margin: 0;
+  font-weight: 500;
+}
+
+.settings-input {
   transition: all 0.3s ease;
+  border-radius: 8px;
 }
 
-/* 输入框聚焦时的样式 */
-.input:focus {
-  border-color: #409EFF;
-  box-shadow: 0 0 5px rgba(64, 158, 255, 0.5);
+.settings-input:hover {
+  border-color: #d2d2d7;
 }
 
-/* 按钮样式 */
+.settings-input:focus {
+  border-color: #0071e3;
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
+}
+
+.input-description {
+  font-size: 12px;
+  color: #86868b;
+  margin-top: 4px;
+}
+
+.form-actions {
+  margin-top: 15px;
+  width: 50%;
+}
+
 .submit-button {
-  width: 100%;
-  background-color: #409EFF;
-  border-radius: 10px;
-  padding: 12px;
-  font-size: 16px;
-  color: #fff;
-  transition: background-color 0.3s ease;
+  background-color: #0071e3;
+  border-color: #0071e3;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: inline-block;
+  width: 50%;
+  margin-left: 70%;
+  /* justify-content: center; */
 }
 
-/* 按钮 hover 效果 */
 .submit-button:hover {
-  background-color: #66b1ff;
+  background-color: #0077ed;
+  border-color: #0077ed;
+  transform: translateY(-1px);
 }
 
-/* 按钮点击时的效果 */
 .submit-button:active {
-  background-color: #3a8ee6;
+  background-color: #006edb;
+  border-color: #006edb;
+  transform: translateY(0);
+}
+
+:deep(.el-form-item__label) {
+  font-weight: 500;
+  color: #1d1d1f;
+}
+
+:deep(.el-input__inner) {
+  border-radius: 8px;
+}
+
+:deep(.el-form-item) {
+  margin-bottom: 16px;
+}
+
+:deep(.el-card) {
+  box-shadow: none !important;
+  border: 1px solid #e8e8e8;
+  background-color: #ffffff;
+}
+
+:deep(.el-card__body) {
+  padding: 10px;
 }
 </style>
